@@ -305,11 +305,11 @@ generate_pm2_file() {
 
   echo "[DEBUG] Checking ARGO_AUTH length: ${#ARGO_AUTH}"
   if [[ $ARGO_AUTH =~ TunnelSecret ]]; then
-    ARGO_ARGS="tunnel --edge-ip-version auto --config /tmp/tunnel.yml run"
+    ARGO_ARGS="tunnel --no-autoupdate --no-prechecks --protocol http2 --edge-ip-version 4 --config /tmp/tunnel.yml run"
     echo "[DEBUG] Matched TunnelSecret mode"
   elif [[ $ARGO_AUTH =~ ^[A-Za-z0-9._=-]{120,1000}$ ]]; then
-    # 强制使用 http2 (TCP) 协议，避免在 Azure Kubernetes (Choreo) 下 UDP 7844 受阻导致 quic 握手超时
-    ARGO_ARGS="tunnel run --protocol http2 --token ${ARGO_AUTH}"
+    # 强制使用 http2 (TCP) 协议、跳过启动连通性预检(--no-prechecks)、强制 IPv4，防止在云原生容器环境下预检误判 hard_fail 自杀
+    ARGO_ARGS="tunnel --no-autoupdate --no-prechecks --protocol http2 --edge-ip-version 4 run --token ${ARGO_AUTH}"
     echo "[DEBUG] Matched Token mode with HTTP2 (length: ${#ARGO_AUTH})"
   else
     echo "[WARN] ARGO_AUTH did not match any known pattern! Length: ${#ARGO_AUTH}"
