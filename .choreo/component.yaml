@@ -1,7 +1,10 @@
-schemaVersion: 1.0
+schemaVersion: 1.2
+
 endpoints:
   - name: v24choreo
     service:
       port: 8080
+      basePath: /
     type: WS
-    networkVisibility: Public
+    networkVisibilities:
+      - Public
