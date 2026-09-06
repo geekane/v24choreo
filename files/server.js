@@ -95,15 +95,16 @@ app.get("/test", function (req, res) {
   });
 
 // keepalive begin
-//web保活
+// web保活
 function keep_web_alive() {
-  // 请求主页，保持唤醒
-  exec("curl -m8 " + url , function (err, stdout, stderr) {
+  // 如果没有配置 WEB_DOMAIN，则降级请求本地或者跳过公网保活
+  const targetUrl = process.env.WEB_DOMAIN ? `https://${process.env.WEB_DOMAIN}` : `http://127.0.0.1:${port}`;
+  exec("curl -s -m8 " + targetUrl, function (err, stdout, stderr) {
     if (err) {
       console.log("保活-请求主页-命令行执行错误：" + err);
-    }
-    else {
-      console.log("保活-请求主页-命令行执行成功，响应报文:" + stdout);
+    } else {
+      const summary = stdout.length > 200 ? stdout.substring(0, 200) + "..." : stdout;
+      console.log("保活-请求主页-命令行执行成功，响应报文:" + summary.trim());
     }
   });
 }
