@@ -308,9 +308,9 @@ generate_pm2_file() {
     ARGO_ARGS="tunnel --edge-ip-version auto --config /tmp/tunnel.yml run"
     echo "[DEBUG] Matched TunnelSecret mode"
   elif [[ $ARGO_AUTH =~ ^[A-Za-z0-9._=-]{120,1000}$ ]]; then
-    # 去除已废弃的 --protocol h2mux，使用 cloudflared 默认最稳定的协商协议
-    ARGO_ARGS="tunnel --edge-ip-version auto run --token ${ARGO_AUTH}"
-    echo "[DEBUG] Matched Token mode (length: ${#ARGO_AUTH})"
+    # 强制使用 http2 (TCP) 协议，避免在 Azure Kubernetes (Choreo) 下 UDP 7844 受阻导致 quic 握手超时
+    ARGO_ARGS="tunnel --edge-ip-version auto --protocol http2 run --token ${ARGO_AUTH}"
+    echo "[DEBUG] Matched Token mode with HTTP2 (length: ${#ARGO_AUTH})"
   else
     echo "[WARN] ARGO_AUTH did not match any known pattern! Length: ${#ARGO_AUTH}"
   fi
@@ -360,8 +360,8 @@ generate_pm2_file
 [ -e /tmp/argo.sh ] && bash /tmp/argo.sh
 if [ -e /tmp/ecosystem.config.js ]; then
   pm2 start /tmp/ecosystem.config.js
-  sleep 4
+  sleep 6
   echo "=== PM2 ARGO LOGS ==="
-  pm2 logs argo --nostream --lines 25
+  pm2 logs argo --nostream --lines 35
   echo "====================="
 fi
