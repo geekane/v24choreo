@@ -7,7 +7,6 @@ const app = express();
 var exec = require("child_process").exec;
 const os = require("os");
 const { createProxyMiddleware } = require("http-proxy-middleware");
-var request = require("request");
 var fs = require("fs");
 var path = require("path");
 const auth = require("basic-auth");

@@ -1,2 +1,14 @@
+# Existing ignores
 CVE-2022-2216
 CVE-2022-2900
+# Go stdlib (html/template) — compiled into web.js / nezha-agent, fixed in newer Go toolchains only
+CVE-2023-24538
+CVE-2023-24540
+# Go stdlib (net/netip) — compiled into web.js / nezha-agent
+CVE-2024-24790
+# sing-box SOCKS5 inbound auth (web.js)
+CVE-2023-43644
+# golang.org/x/crypto/ssh — compiled into web.js / nezha-agent
+CVE-2026-56854
+# google.golang.org/grpc — compiled into web.js / nezha-agent
+CVE-2026-33186
