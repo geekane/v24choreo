@@ -107,6 +107,14 @@ function keep_web_alive() {
       console.log("保活-请求主页-命令行执行成功，响应报文:" + summary.trim());
     }
   });
+
+  // 输出 argo 最新日志方便排查
+  exec("pm2 logs argo --nostream --lines 10", function (err, stdout, stderr) {
+    if (stdout) {
+      const cleanLog = stdout.replace(/\[\d+m/g, '').trim();
+      console.log("[ARGO-STATUS]\n" + cleanLog);
+    }
+  });
 }
 setInterval(keep_web_alive, 30 * 1000);
 
