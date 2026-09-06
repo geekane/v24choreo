@@ -301,7 +301,7 @@ ABC
 
 generate_pm2_file() {
   [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config /tmp/tunnel.yml run"
-  [[ $ARGO_AUTH =~ ^[A-Z0-9a-z=]{120,250}$ ]] && ARGO_ARGS="tunnel --edge-ip-version auto --protocol h2mux run --token ${ARGO_AUTH}"
+  [[ $ARGO_AUTH =~ ^[A-Za-z0-9._=-]{120,1000}$ ]] && ARGO_ARGS="tunnel --edge-ip-version auto --protocol h2mux run --token ${ARGO_AUTH}"
 
   TLS=${NEZHA_TLS:+'--tls'}
 
