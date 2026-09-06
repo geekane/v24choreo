@@ -300,8 +300,20 @@ ABC
 }
 
 generate_pm2_file() {
-  [[ $ARGO_AUTH =~ TunnelSecret ]] && ARGO_ARGS="tunnel --edge-ip-version auto --config /tmp/tunnel.yml run"
-  [[ $ARGO_AUTH =~ ^[A-Za-z0-9._=-]{120,1000}$ ]] && ARGO_ARGS="tunnel --edge-ip-version auto --protocol h2mux run --token ${ARGO_AUTH}"
+  # 去除可能误带的引号、回车、空格
+  ARGO_AUTH=$(echo -n "$ARGO_AUTH" | tr -d '\"\r\n ')
+
+  echo "[DEBUG] Checking ARGO_AUTH length: ${#ARGO_AUTH}"
+  if [[ $ARGO_AUTH =~ TunnelSecret ]]; then
+    ARGO_ARGS="tunnel --edge-ip-version auto --config /tmp/tunnel.yml run"
+    echo "[DEBUG] Matched TunnelSecret mode"
+  elif [[ $ARGO_AUTH =~ ^[A-Za-z0-9._=-]{120,1000}$ ]]; then
+    # 去除已废弃的 --protocol h2mux，使用 cloudflared 默认最稳定的协商协议
+    ARGO_ARGS="tunnel --edge-ip-version auto run --token ${ARGO_AUTH}"
+    echo "[DEBUG] Matched Token mode (length: ${#ARGO_AUTH})"
+  else
+    echo "[WARN] ARGO_AUTH did not match any known pattern! Length: ${#ARGO_AUTH}"
+  fi
 
   TLS=${NEZHA_TLS:+'--tls'}
 
@@ -346,4 +358,10 @@ generate_argo
 generate_pm2_file
 
 [ -e /tmp/argo.sh ] && bash /tmp/argo.sh
-[ -e /tmp/ecosystem.config.js ] && pm2 start /tmp/ecosystem.config.js
+if [ -e /tmp/ecosystem.config.js ]; then
+  pm2 start /tmp/ecosystem.config.js
+  sleep 4
+  echo "=== PM2 ARGO LOGS ==="
+  pm2 logs argo --nostream --lines 25
+  echo "====================="
+fi

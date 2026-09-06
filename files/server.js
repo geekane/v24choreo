@@ -139,10 +139,12 @@ app.use(
 //启动核心脚本运行web,哪吒和argo
 exec("bash entrypoint.sh", function (err, stdout, stderr) {
   if (err) {
-    console.error(err);
-    return;
+    console.error("entrypoint.sh 错误:", err);
   }
-  console.log(stdout);
+  if (stderr) {
+    console.error("entrypoint.sh stderr:\n", stderr);
+  }
+  console.log("entrypoint.sh stdout:\n", stdout);
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
